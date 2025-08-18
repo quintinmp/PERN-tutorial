@@ -3,6 +3,7 @@ import helmet from "helmet";
 import morgan from "morgan";
 import cors from "cors";
 
+import path from "path";
 import dotenv from "dotenv";
 import { sql } from "./config/db.js";
 import { aj } from "./lib/arcjet.js";
@@ -12,12 +13,14 @@ dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-
+const __dirname = path.resolve();
 
 // MIDDLE LAYERS
 app.use(express.json());
 app.use(cors()); // helps with CORS related errors
-app.use(helmet()); // helmet is a security middleware that helps you protect your app by setting various HTTP headers
+app.use(helmet({
+    contentSecurityPolicy:false,
+})); // helmet is a security middleware that helps you protect your app by setting various HTTP headers
 app.use(morgan("dev")); // log requests to the console
 app.use(async (req, res, next) => { // apply arcjet rate-limit to all routes
     console.log("Arcjet middleware hit!"); // Add this
@@ -60,6 +63,14 @@ app.use(async (req, res, next) => { // apply arcjet rate-limit to all routes
 
 
 app.use("/api/products", productRoutes);
+
+if(process.env.NODE_ENV==="production") {
+    //serve our react app
+    app.use(express.static(path.join(__dirname, "/frontend/dist")));
+    app.get("*", (req,res) => {
+        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
+    })
+}
 
 async function initDB() {
     try {
