@@ -3,6 +3,8 @@ import Navbar from "./components/Navbar.jsx";
 import ProductPage from "./pages/ProductPage.jsx";
 import { Routes, Route } from "react-router-dom";
 import { useThemeStore } from "./store/useThemeStore.js";
+import { Toaster } from "react-hot-toast";
+
 
 function App() {
   
@@ -15,6 +17,8 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path="/product/:id" element={<ProductPage />} />
         </Routes>
+
+        <Toaster />
     </div>
   );
 }
